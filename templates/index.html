@@ -1,0 +1,1263 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLCC Cipher - Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--secondary);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header .subtitle {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .nav-links li {
+            padding: 0;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: var(--light);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.1);
+            border-left-color: var(--primary);
+        }
+
+        .nav-links a.active {
+            background: rgba(52, 152, 219, 0.2);
+            border-left-color: var(--primary);
+            color: white;
+        }
+
+        .nav-links i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            color: var(--gray);
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .card-header i {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .card-header h3 {
+            color: var(--secondary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .key-validator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .validation-message {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .validation-message.valid {
+            color: var(--success);
+        }
+
+        .validation-message.invalid {
+            color: var(--danger);
+        }
+
+        .result-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 5px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .result-text {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+
+        .step-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .step-content {
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            background: var(--light);
+            border-radius: 3px;
+        }
+
+        .grid-container {
+            overflow-x: auto;
+        }
+
+        .grid {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .grid th, .grid td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            min-width: 40px;
+        }
+
+        .grid th {
+            background: var(--primary);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid var(--danger);
+        }
+
+        .key-management {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar-header h2, .sidebar-header .subtitle, .nav-links span {
+                display: none;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .nav-links a {
+                justify-content: center;
+                padding: 15px;
+            }
+            .nav-links i {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>MLCC Cipher</h2>
+            <div class="subtitle">Security Dashboard</div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="active" onclick="showTab('dashboard')"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="#" onclick="showTab('encrypt')"><i class="fas fa-lock"></i> <span>Encrypt</span></a></li>
+            <li><a href="#" onclick="showTab('decrypt')"><i class="fas fa-unlock"></i> <span>Decrypt</span></a></li>
+            <li><a href="#" onclick="showTab('visualize')"><i class="fas fa-eye"></i> <span>Visualize</span></a></li>
+            <li><a href="#" onclick="showTab('analysis')"><i class="fas fa-chart-bar"></i> <span>Security Analysis</span></a></li>
+            <li><a href="#" onclick="showTab('attacks')"><i class="fas fa-shield-alt"></i> <span>Attack Tools</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="header">
+                <h1>MLCC Cipher Dashboard</h1>
+                <div class="subtitle">Multi-Layer Custom Cipher - Security Analysis Platform</div>
+            </div>
+
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-layer-group"></i>
+                        <h3>Cipher Overview</h3>
+                    </div>
+                    <p>Three-layer encryption combining:</p>
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>Substitution Cipher</li>
+                        <li>Modified Vigenère</li>
+                        <li>Multi-directional Transposition</li>
+                    </ul>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-encryptions">0</div>
+                            <div class="stat-label">Total Encryptions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="key-strength">High</div>
+                            <div class="stat-label">Security Level</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="attack-success">0%</div>
+                            <div class="stat-label">Attack Resistance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-bolt"></i>
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div style="display: grid; gap: 10px;">
+                        <button class="btn btn-primary" onclick="showTab('encrypt')">
+                            <i class="fas fa-lock"></i> Encrypt Message
+                        </button>
+                        <button class="btn btn-success" onclick="showTab('decrypt')">
+                            <i class="fas fa-unlock"></i> Decrypt Message
+                        </button>
+                        <button class="btn btn-warning" onclick="generateAllKeys()">
+                            <i class="fas fa-key"></i> Generate All Keys
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Security Status</h3>
+                    </div>
+                    <div id="security-status">
+                        <div style="margin-bottom: 10px;">
+                            <strong>Substitution Layer:</strong> 
+                            <span style="color: var(--success);">✓ Secure</span>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>Vigenère Layer:</strong> 
+                            <span style="color: var(--success);">✓ Enhanced</span>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>Transposition Layer:</strong> 
+                            <span style="color: var(--success);">✓ Multi-directional</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-history"></i>
+                    <h3>Recent Activity</h3>
+                </div>
+                <div id="recent-activity">
+                    <p>No recent activity. Start by encrypting a message!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Encrypt Tab -->
+        <div id="encrypt" class="tab-content">
+            <div class="header">
+                <h1><i class="fas fa-lock"></i> Encrypt Message</h1>
+                <div class="subtitle">Secure your messages with three-layer MLCC encryption</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-key"></i>
+                    <h3>Encryption Keys</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="substitution-key-enc">Substitution Key (26 unique uppercase letters)</label>
+                    <div class="key-management">
+                        <input type="text" id="substitution-key-enc" class="form-control" value="QWERTYUIOPASDFGHJKLZXCVBNM" maxlength="26">
+                        <button class="btn btn-warning" onclick="generateKey('substitution', 'enc')">
+                            <i class="fas fa-random"></i> Generate
+                        </button>
+                    </div>
+                    <div class="key-validator">
+                        <span id="substitution-validation-enc" class="validation-message valid">✓ Valid key</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vigenere-key-enc">Vigenère Key (min. 10 characters)</label>
+                    <div class="key-management">
+                        <input type="text" id="vigenere-key-enc" class="form-control" value="COMPLEXKEYWORD">
+                        <button class="btn btn-warning" onclick="generateKey('vigenere', 'enc')">
+                            <i class="fas fa-random"></i> Generate
+                        </button>
+                    </div>
+                    <div class="key-validator">
+                        <span id="vigenere-validation-enc" class="validation-message valid">✓ Valid key</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transposition-key-enc">Transposition Key (comma-separated numbers)</label>
+                    <div class="key-management">
+                        <input type="text" id="transposition-key-enc" class="form-control" value="3,1,4,2,5">
+                        <button class="btn btn-warning" onclick="generateKey('transposition', 'enc')">
+                            <i class="fas fa-random"></i> Generate
+                        </button>
+                    </div>
+                    <div class="key-validator">
+                        <span id="transposition-validation-enc" class="validation-message valid">✓ Valid key</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-edit"></i>
+                    <h3>Message Input</h3>
+                </div>
+                <div class="form-group">
+                    <label for="plaintext">Plaintext Message</label>
+                    <textarea id="plaintext" class="form-control" rows="5" placeholder="Enter your secret message here..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="encrypt()">
+                    <i class="fas fa-lock"></i> Encrypt Message
+                </button>
+            </div>
+
+            <div id="encrypt-result" class="result-container" style="display: none;">
+                <div class="result-title">Encrypted Ciphertext</div>
+                <div id="ciphertext" class="result-text"></div>
+            </div>
+
+            <div id="encrypt-error" class="alert alert-error" style="display: none;"></div>
+        </div>
+
+        <!-- Decrypt Tab -->
+        <div id="decrypt" class="tab-content">
+            <div class="header">
+                <h1><i class="fas fa-unlock"></i> Decrypt Message</h1>
+                <div class="subtitle">Decrypt MLCC-encrypted messages with the correct keys</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-key"></i>
+                    <h3>Decryption Keys</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="substitution-key-dec">Substitution Key</label>
+                    <input type="text" id="substitution-key-dec" class="form-control" value="QWERTYUIOPASDFGHJKLZXCVBNM" maxlength="26">
+                    <div class="key-validator">
+                        <span id="substitution-validation-dec" class="validation-message valid">✓ Valid key</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vigenere-key-dec">Vigenère Key</label>
+                    <input type="text" id="vigenere-key-dec" class="form-control" value="COMPLEXKEYWORD">
+                    <div class="key-validator">
+                        <span id="vigenere-validation-dec" class="validation-message valid">✓ Valid key</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transposition-key-dec">Transposition Key</label>
+                    <input type="text" id="transposition-key-dec" class="form-control" value="3,1,4,2,5">
+                    <div class="key-validator">
+                        <span id="transposition-validation-dec" class="validation-message valid">✓ Valid key</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-lock"></i>
+                    <h3>Ciphertext Input</h3>
+                </div>
+                <div class="form-group">
+                    <label for="ciphertext-input">Ciphertext</label>
+                    <textarea id="ciphertext-input" class="form-control" rows="5" placeholder="Enter ciphertext to decrypt..."></textarea>
+                </div>
+                <button class="btn btn-success" onclick="decrypt()">
+                    <i class="fas fa-unlock"></i> Decrypt Message
+                </button>
+            </div>
+
+            <div id="decrypt-result" class="result-container" style="display: none;">
+                <div class="result-title">Decrypted Plaintext</div>
+                <div id="plaintext-result" class="result-text"></div>
+            </div>
+
+            <div id="decrypt-error" class="alert alert-error" style="display: none;"></div>
+        </div>
+
+        <!-- Visualize Tab -->
+        <div id="visualize" class="tab-content">
+            <div class="header">
+                <h1><i class="fas fa-eye"></i> Visualize Encryption</h1>
+                <div class="subtitle">Step-by-step visualization of the MLCC encryption process</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cogs"></i>
+                    <h3>Encryption Parameters</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="substitution-key-vis">Substitution Key</label>
+                    <input type="text" id="substitution-key-vis" class="form-control" value="QWERTYUIOPASDFGHJKLZXCVBNM" maxlength="26">
+                    <div class="key-validator">
+                        <span id="substitution-validation-vis" class="validation-message valid">✓ Valid key</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vigenere-key-vis">Vigenère Key</label>
+                    <input type="text" id="vigenere-key-vis" class="form-control" value="COMPLEXKEYWORD">
+                    <div class="key-validator">
+                        <span id="vigenere-validation-vis" class="validation-message valid">✓ Valid key</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transposition-key-vis">Transposition Key</label>
+                    <input type="text" id="transposition-key-vis" class="form-control" value="3,1,4,2,5">
+                    <div class="key-validator">
+                        <span id="transposition-validation-vis" class="validation-message valid">✓ Valid key</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="plaintext-vis">Plaintext to Visualize</label>
+                    <textarea id="plaintext-vis" class="form-control" rows="3" placeholder="Enter text to see the encryption steps...">HELLO WORLD</textarea>
+                </div>
+
+                <button class="btn btn-primary" onclick="visualize()">
+                    <i class="fas fa-play"></i> Start Visualization
+                </button>
+            </div>
+
+            <div id="visualization" style="display: none;">
+                <div class="step-container">
+                    <div class="step-title">Step 1: Substitution Cipher</div>
+                    <div class="step-content" id="substitution-step"></div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-title">Step 2: Modified Vigenère Cipher</div>
+                    <div class="step-content" id="vigenere-step"></div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-title">Step 3: Multi-directional Transposition</div>
+                    <div id="transposition-grid" class="grid-container"></div>
+                </div>
+
+                <div class="result-container">
+                    <div class="result-title">Final Ciphertext</div>
+                    <div id="final-ciphertext" class="result-text"></div>
+                </div>
+            </div>
+
+            <div id="visualize-error" class="alert alert-error" style="display: none;"></div>
+        </div>
+
+        <!-- Security Analysis Tab -->
+        <div id="analysis" class="tab-content">
+            <div class="header">
+                <h1><i class="fas fa-chart-bar"></i> Security Analysis</h1>
+                <div class="subtitle">Comprehensive security assessment of the MLCC cipher</div>
+            </div>
+
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Security Metrics</h3>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">26!</div>
+                            <div class="stat-label">Substitution Keys</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">26^10</div>
+                            <div class="stat-label">Vigenère Keys</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">n!</div>
+                            <div class="stat-label">Transposition Keys</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-clock"></i>
+                        <h3>Performance</h3>
+                    </div>
+                    <div id="performance-metrics">
+                        <p><strong>Encryption Time:</strong> <span id="enc-time">~O(n)</span></p>
+                        <p><strong>Decryption Time:</strong> <span id="dec-time">~O(n)</span></p>
+                        <p><strong>Key Space:</strong> <span id="key-space">~10^40</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Vulnerability Analysis</h3>
+                </div>
+                <div id="vulnerability-list">
+                    <div style="margin-bottom: 15px; padding: 10px; background: #fff3cd; border-radius: 5px;">
+                        <strong>Frequency Analysis:</strong> Partially mitigated by multiple layers
+                    </div>
+                    <div style="margin-bottom: 15px; padding: 10px; background: #f8d7da; border-radius: 5px;">
+                        <strong>Known Plaintext:</strong> Vulnerable with sufficient pairs
+                    </div>
+                    <div style="padding: 10px; background: #d1ecf1; border-radius: 5px;">
+                        <strong>Brute Force:</strong> Highly resistant due to large key space
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attack Tools Tab -->
+        <div id="attacks" class="tab-content">
+            <div class="header">
+                <h1><i class="fas fa-shield-alt"></i> Attack Tools</h1>
+                <div class="subtitle">Cryptanalysis tools for testing cipher strength</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bomb"></i>
+                    <h3>Available Attacks</h3>
+                </div>
+                <div style="display: grid; gap: 15px;">
+                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+                        <h4>Frequency Analysis</h4>
+                        <p>Analyze letter frequency distributions</p>
+                        <button class="btn btn-warning" onclick="runFrequencyAnalysis()">
+                            <i class="fas fa-chart-bar"></i> Run Analysis
+                        </button>
+                    </div>
+                    
+                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+                        <h4>Substitution Cracker</h4>
+                        <p>Hill-climbing attack on substitution layer</p>
+                        <button class="btn btn-warning" onclick="runSubstitutionCracker()">
+                            <i class="fas fa-mountain"></i> Start Attack
+                        </button>
+                    </div>
+                    
+                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+                        <h4>Transposition Brute Force</h4>
+                        <p>Try different column arrangements</p>
+                        <button class="btn btn-warning" onclick="runTranspositionAttack()">
+                            <i class="fas fa-random"></i> Brute Force
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attack Results Card - FIXED: This should be separate from Available Attacks card -->
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Attack Results</h3>
+                </div>
+                <div id="attack-results">
+                    <p style="text-align: center; color: var(--gray); padding: 20px;">
+                        <i class="fas fa-play-circle"></i><br>
+                        Run an attack to see results here
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab navigation
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update dashboard stats when showing dashboard
+            if (tabName === 'dashboard') {
+                updateDashboardStats();
+            }
+        }
+
+        // Key validation functions
+        function validateSubstitutionKey(inputId, validationId) {
+            const key = document.getElementById(inputId).value.toUpperCase();
+            const validationElement = document.getElementById(validationId);
+            
+            if (key.length !== 26) {
+                validationElement.textContent = '✗ Key must be exactly 26 characters';
+                validationElement.className = 'validation-message invalid';
+                return false;
+            }
+            
+            const uniqueChars = new Set(key);
+            if (uniqueChars.size !== 26) {
+                validationElement.textContent = '✗ Key must contain 26 unique characters';
+                validationElement.className = 'validation-message invalid';
+                return false;
+            }
+            
+            validationElement.textContent = '✓ Valid key';
+            validationElement.className = 'validation-message valid';
+            return true;
+        }
+
+        function validateVigenereKey(inputId, validationId) {
+            const key = document.getElementById(inputId).value.toUpperCase();
+            const validationElement = document.getElementById(validationId);
+
+            if (key.length < 10) {
+                validationElement.textContent = '✗ Key must be at least 10 characters';
+                validationElement.className = 'validation-message invalid';
+                return false;
+            }
+            
+            validationElement.textContent = '✓ Valid key';
+            validationElement.className = 'validation-message valid';
+            return true;
+        }
+
+        function validateTranspositionKey(inputId, validationId) {
+            const keyStr = document.getElementById(inputId).value;
+            const validationElement = document.getElementById(validationId);
+            
+            try {
+                const key = keyStr.split(',').map(num => parseInt(num.trim()));
+                
+                if (key.length < 3) {
+                    validationElement.textContent = '✗ Key must have at least 3 elements';
+                    validationElement.className = 'validation-message invalid';
+                    return false;
+                }
+                
+                if (key.some(isNaN)) {
+                    validationElement.textContent = '✗ Key must contain only numbers';
+                    validationElement.className = 'validation-message invalid';
+                    return false;
+                }
+                
+                validationElement.textContent = '✓ Valid key';
+                validationElement.className = 'validation-message valid';
+                return true;
+            } catch (e) {
+                validationElement.textContent = '✗ Invalid key format';
+                validationElement.className = 'validation-message invalid';
+                return false;
+            }
+        }
+
+        function validateAllKeys(tabPrefix) {
+            const subValid = validateSubstitutionKey(`substitution-key-${tabPrefix}`, `substitution-validation-${tabPrefix}`);
+            const vigValid = validateVigenereKey(`vigenere-key-${tabPrefix}`, `vigenere-validation-${tabPrefix}`);
+            const transValid = validateTranspositionKey(`transposition-key-${tabPrefix}`, `transposition-validation-${tabPrefix}`);
+            return subValid && vigValid && transValid;
+        }
+
+        // Key generation
+        async function generateKey(keyType, tabPrefix) {
+            try {
+                const response = await fetch(`/api/keygen/${keyType}`);
+                const data = await response.json();
+                const inputId = `${keyType}-key-${tabPrefix}`;
+                document.getElementById(inputId).value = data.key;
+                
+                // Re-validate
+                if (keyType === 'substitution') validateSubstitutionKey(inputId, `${keyType}-validation-${tabPrefix}`);
+                else if (keyType === 'vigenere') validateVigenereKey(inputId, `${keyType}-validation-${tabPrefix}`);
+                else if (keyType === 'transposition') validateTranspositionKey(inputId, `${keyType}-validation-${tabPrefix}`);
+            } catch (error) {
+                console.error('Error generating key:', error);
+                alert('Failed to generate random key.');
+            }
+        }
+
+        async function generateAllKeys() {
+            await generateKey('substitution', 'enc');
+            await generateKey('vigenere', 'enc');
+            await generateKey('transposition', 'enc');
+            alert('All keys generated successfully!');
+        }
+
+        // Encryption
+        async function encrypt() {
+            if (!validateAllKeys('enc')) {
+                alert('Please fix invalid keys before encrypting.');
+                return;
+            }
+            
+            const plaintext = document.getElementById('plaintext').value;
+            if (!plaintext) {
+                alert('Please enter plaintext to encrypt.');
+                return;
+            }
+
+            const substitutionKey = document.getElementById('substitution-key-enc').value;
+            const vigenereKey = document.getElementById('vigenere-key-enc').value;
+            const transpositionKey = document.getElementById('transposition-key-enc').value.split(',').map(n => parseInt(n.trim()));
+
+            try {
+                const response = await fetch('/api/encrypt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        plaintext,
+                        substitutionKey,
+                        vigenereKey,
+                        transpositionKey
+                    })
+                });
+                
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('ciphertext').textContent = result.ciphertext;
+                    document.getElementById('encrypt-result').style.display = 'block';
+                    document.getElementById('encrypt-error').style.display = 'none';
+                    addToActivity('Encrypted message', result.ciphertext.substring(0, 50) + '...');
+                } else {
+                    document.getElementById('encrypt-error').textContent = 'Error: ' + result.error;
+                    document.getElementById('encrypt-error').style.display = 'block';
+                    document.getElementById('encrypt-result').style.display = 'none';
+                }
+            } catch (error) {
+                document.getElementById('encrypt-error').textContent = 'Network error: ' + error.message;
+                document.getElementById('encrypt-error').style.display = 'block';
+            }
+        }
+
+        // Decryption
+        async function decrypt() {
+            if (!validateAllKeys('dec')) {
+                alert('Please fix invalid keys before decrypting.');
+                return;
+            }
+            
+            const ciphertext = document.getElementById('ciphertext-input').value;
+            if (!ciphertext) {
+                alert('Please enter ciphertext to decrypt.');
+                return;
+            }
+
+            const substitutionKey = document.getElementById('substitution-key-dec').value;
+            const vigenereKey = document.getElementById('vigenere-key-dec').value;
+            const transpositionKey = document.getElementById('transposition-key-dec').value.split(',').map(n => parseInt(n.trim()));
+
+            try {
+                const response = await fetch('/api/decrypt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ciphertext,
+                        substitutionKey,
+                        vigenereKey,
+                        transpositionKey
+                    })
+                });
+                
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('plaintext-result').textContent = result.plaintext;
+                    document.getElementById('decrypt-result').style.display = 'block';
+                    document.getElementById('decrypt-error').style.display = 'none';
+                    addToActivity('Decrypted message', result.plaintext.substring(0, 50) + '...');
+                } else {
+                    document.getElementById('decrypt-error').textContent = 'Error: ' + result.error;
+                    document.getElementById('decrypt-error').style.display = 'block';
+                    document.getElementById('decrypt-result').style.display = 'none';
+                }
+            } catch (error) {
+                document.getElementById('decrypt-error').textContent = 'Network error: ' + error.message;
+                document.getElementById('decrypt-error').style.display = 'block';
+            }
+        }
+
+        // Visualization
+        async function visualize() {
+            if (!validateAllKeys('vis')) {
+                alert('Please fix invalid keys before visualizing.');
+                return;
+            }
+            
+            const plaintext = document.getElementById('plaintext-vis').value;
+            if (!plaintext) {
+                alert('Please enter plaintext to visualize.');
+                return;
+            }
+
+            const substitutionKey = document.getElementById('substitution-key-vis').value;
+            const vigenereKey = document.getElementById('vigenere-key-vis').value;
+            const transpositionKey = document.getElementById('transposition-key-vis').value.split(',').map(n => parseInt(n.trim()));
+
+            try {
+                const response = await fetch('/api/encrypt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        plaintext,
+                        substitutionKey,
+                        vigenereKey,
+                        transpositionKey
+                    })
+                });
+                
+                const result = await response.json();
+
+                if (result.success) {
+                    const steps = result.intermediate_steps;
+                    document.getElementById('substitution-step').textContent = steps.substituted_text;
+                    document.getElementById('vigenere-step').textContent = steps.vigenere_result;
+                    
+                    // Create grid visualization
+                    const grid = steps.grid;
+                    const colOrder = steps.column_order;
+                    let gridHTML = '<table class="grid"><tr><th>Row/Col</th>';
+                    for (let i = 0; i < grid[0].length; i++) {
+                        gridHTML += `<th>Col ${i}<br><small>(${colOrder.indexOf(i)+1})</small></th>`;
+                    }
+                    gridHTML += '</tr>';
+                    for (let r = 0; r < grid.length; r++) {
+                        gridHTML += `<tr><td><strong>Row ${r}</strong></td>`;
+                        for (let c = 0; c < grid[r].length; c++) {
+                            gridHTML += `<td>${grid[r][c] || ' '}</td>`;
+                        }
+                        gridHTML += '</tr>';
+                    }
+                    gridHTML += '</table>';
+                    document.getElementById('transposition-grid').innerHTML = gridHTML;
+
+                    document.getElementById('final-ciphertext').textContent = result.ciphertext;
+                    document.getElementById('visualization').style.display = 'block';
+                    document.getElementById('visualize-error').style.display = 'none';
+                } else {
+                    document.getElementById('visualize-error').textContent = 'Error: ' + result.error;
+                    document.getElementById('visualize-error').style.display = 'block';
+                    document.getElementById('visualization').style.display = 'none';
+                }
+            } catch (error) {
+                document.getElementById('visualize-error').textContent = 'Network error: ' + error.message;
+                document.getElementById('visualize-error').style.display = 'block';
+            }
+        }
+
+        // Dashboard functionality
+        function updateDashboardStats() {
+            // Simulate some stats - in real app, these would come from backend
+            document.getElementById('total-encryptions').textContent = Math.floor(Math.random() * 100);
+            document.getElementById('attack-success').textContent = '95%';
+        }
+
+        function addToActivity(action, content) {
+            const activityDiv = document.getElementById('recent-activity');
+            const timestamp = new Date().toLocaleTimeString();
+            const activityItem = `<div style="padding: 10px; border-bottom: 1px solid #eee;">
+                <strong>${action}</strong><br>
+                <small>${content} - ${timestamp}</small>
+            </div>`;
+            activityDiv.innerHTML = activityItem + activityDiv.innerHTML;
+        }
+
+        // ===== REAL ATTACK TOOLS IMPLEMENTATION =====
+
+        // Attack tools implementation
+        async function runFrequencyAnalysis() {
+            const ciphertext = prompt("Enter ciphertext for frequency analysis:", document.getElementById('ciphertext-input').value || "HELLO WORLD");
+            if (!ciphertext) return;
+
+            showAttackLoading('frequency');
+            
+            try {
+                const response = await fetch('/api/attack/frequency', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ciphertext })
+                });
+                
+                const result = await response.json();
+                displayAttackResult('frequency', result);
+            } catch (error) {
+                displayAttackResult('frequency', { success: false, error: error.message });
+            }
+        }
+
+        async function runSubstitutionCracker() {
+            const ciphertext = prompt("Enter substituted text for cracking:", document.getElementById('ciphertext-input').value || "KHOOR ZRUOG");
+            if (!ciphertext) return;
+
+            showAttackLoading('substitution');
+            
+            try {
+                const response = await fetch('/api/attack/substitution', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ciphertext })
+                });
+                
+                const result = await response.json();
+                displayAttackResult('substitution', result);
+            } catch (error) {
+                displayAttackResult('substitution', { success: false, error: error.message });
+            }
+        }
+
+        async function runTranspositionAttack() {
+            const ciphertext = prompt("Enter ciphertext for transposition attack:", document.getElementById('ciphertext-input').value || "HOREL OOLWD");
+            if (!ciphertext) return;
+
+            showAttackLoading('transposition');
+            
+            try {
+                const response = await fetch('/api/attack/transposition', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ciphertext })
+                });
+                
+                const result = await response.json();
+                displayAttackResult('transposition', result);
+            } catch (error) {
+                displayAttackResult('transposition', { success: false, error: error.message });
+            }
+        }
+
+        // Helper functions for attack results
+        function showAttackLoading(attackType) {
+            const attackDiv = document.getElementById('attack-results');
+            attackDiv.innerHTML = `
+                <div class="alert" style="background: #d1ecf1; border-left: 4px solid #3498db;">
+                    <i class="fas fa-spinner fa-spin"></i> Running ${attackType} attack...
+                </div>
+            `;
+        }
+
+        function displayAttackResult(attackType, result) {
+            const attackDiv = document.getElementById('attack-results');
+            
+            if (result.success) {
+                attackDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h4><i class="fas fa-check-circle"></i> ${attackType.charAt(0).toUpperCase() + attackType.slice(1)} Attack Successful</h4>
+                        ${result.analysis ? formatAnalysis(attackType, result.analysis) : ''}
+                        <details style="margin-top: 15px;">
+                            <summary>Raw Output</summary>
+                            <pre style="background: white; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px; max-height: 300px; overflow: auto;">${result.output || 'No output available'}</pre>
+                        </details>
+                    </div>
+                `;
+            } else {
+                attackDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <h4><i class="fas fa-exclamation-circle"></i> ${attackType.charAt(0).toUpperCase() + attackType.slice(1)} Attack Failed</h4>
+                        <p>Error: ${result.error || 'Unknown error'}</p>
+                        ${result.output ? `<details style="margin-top: 15px;">
+                            <summary>Error Details</summary>
+                            <pre style="background: white; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px; max-height: 300px; overflow: auto;">${result.output}</pre>
+                        </details>` : ''}
+                    </div>
+                `;
+            }
+        }
+
+        function formatAnalysis(attackType, analysis) {
+            switch(attackType) {
+                case 'frequency':
+                    return `
+                        <p><strong>Total Letters:</strong> ${analysis.total_letters || 'N/A'}</p>
+                        ${analysis.sample_decoded ? `<p><strong>Sample Decoded:</strong> ${analysis.sample_decoded}</p>` : ''}
+                        ${Object.keys(analysis.suggested_mapping || {}).length > 0 ? 
+                            `<p><strong>Suggested Mapping:</strong> ${JSON.stringify(analysis.suggested_mapping)}</p>` : ''}
+                    `;
+                case 'substitution':
+                    return `
+                        <p><strong>Recovered Key:</strong> ${analysis.recovered_key || 'N/A'}</p>
+                        <p><strong>Score:</strong> ${analysis.score || 'N/A'}</p>
+                        ${analysis.decoded_preview ? `<p><strong>Decoded Preview:</strong> ${analysis.decoded_preview}</p>` : ''}
+                    `;
+                case 'transposition':
+                    return `
+                        <p><strong>Key Length:</strong> ${analysis.recovered_key_length || 'N/A'}</p>
+                        <p><strong>Key Order:</strong> [${(analysis.recovered_key_order || []).join(', ')}]</p>
+                        <p><strong>Score:</strong> ${analysis.score || 'N/A'}</p>
+                        ${analysis.plaintext_preview ? `<p><strong>Plaintext Preview:</strong> ${analysis.plaintext_preview}</p>` : ''}
+                    `;
+                default:
+                    return '';
+            }
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add validation listeners to all key inputs
+            const keyTypes = ['substitution', 'vigenere', 'transposition'];
+            const tabPrefixes = ['enc', 'dec', 'vis'];
+
+            tabPrefixes.forEach(prefix => {
+                keyTypes.forEach(type => {
+                    const inputId = `${type}-key-${prefix}`;
+                    const validationId = `${type}-validation-${prefix}`;
+                    const inputElement = document.getElementById(inputId);
+                    if (inputElement) {
+                        inputElement.addEventListener('input', function() {
+                            if (type === 'substitution') validateSubstitutionKey(inputId, validationId);
+                            else if (type === 'vigenere') validateVigenereKey(inputId, validationId);
+                            else if (type === 'transposition') validateTranspositionKey(inputId, validationId);
+                        });
+                    }
+                });
+            });
+
+            // Initialize dashboard
+            updateDashboardStats();
+        });
+    </script>
+</body>
+</html>
